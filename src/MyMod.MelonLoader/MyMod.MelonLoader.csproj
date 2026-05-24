@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>disable</Nullable>
+        <RootNamespace>MyMod.MelonLoader</RootNamespace>
+        <AssemblyName>MyMod.MelonLoader</AssemblyName>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <DefineConstants>$(DefineConstants);MELONLOADER</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="HotRepl.Core">
+            <HintPath>$(HotReplVendorDir)HotRepl.Core.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="HotRepl.Protocol">
+            <HintPath>$(HotReplVendorDir)HotRepl.Protocol.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Fleck">
+            <HintPath>$(HotReplVendorDir)Fleck.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Newtonsoft.Json">
+            <HintPath>$(HotReplVendorDir)Newtonsoft.Json.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Namotion.Reflection">
+            <HintPath>$(HotReplVendorDir)Namotion.Reflection.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="MelonLoader" Condition="'$(MelonLoaderPath)' != ''">
+            <HintPath>$(MelonLoaderPath)/net6/MelonLoader.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule" Condition="'$(Il2CppAssembliesPath)' != ''">
+            <HintPath>$(Il2CppAssembliesPath)/UnityEngine.CoreModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Il2Cppmscorlib" Condition="'$(Il2CppAssembliesPath)' != ''">
+            <HintPath>$(Il2CppAssembliesPath)/Il2Cppmscorlib.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Il2CppInterop.Runtime" Condition="'$(MelonLoaderPath)' != ''">
+            <HintPath>$(MelonLoaderPath)/net6/Il2CppInterop.Runtime.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="../MyMod/**/*.cs" Exclude="../MyMod/bin/**;../MyMod/obj/**" />
+    </ItemGroup>
+</Project>

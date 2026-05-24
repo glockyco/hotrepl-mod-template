@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  template-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.x"
+
+      - name: Instantiate template
+        run: |
+          dotnet new install .
+          dotnet new hotrepl-mod -n SmokeTest -o /tmp/SmokeTest \
+            --PluginGuid smoke.test --Author "Smoke Test"
+
+      - name: Verify shared source compiles
+        run: |
+          cat > /tmp/SmokeTest/SmokeTest.SharedSource.csproj <<'XML'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <TargetFramework>netstandard2.1</TargetFramework>
+              <LangVersion>latest</LangVersion>
+              <Nullable>enable</Nullable>
+              <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+              <AnalysisMode>Recommended</AnalysisMode>
+              <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+            </PropertyGroup>
+            <ItemGroup>
+              <Reference Include="HotRepl.Core">
+                <HintPath>vendor/hotrepl/HotRepl.Core.dll</HintPath>
+              </Reference>
+              <Reference Include="HotRepl.Protocol">
+                <HintPath>vendor/hotrepl/HotRepl.Protocol.dll</HintPath>
+              </Reference>
+              <Reference Include="Fleck">
+                <HintPath>vendor/hotrepl/Fleck.dll</HintPath>
+              </Reference>
+              <Reference Include="Newtonsoft.Json">
+                <HintPath>vendor/hotrepl/Newtonsoft.Json.dll</HintPath>
+              </Reference>
+              <Reference Include="Namotion.Reflection">
+                <HintPath>vendor/hotrepl/Namotion.Reflection.dll</HintPath>
+              </Reference>
+              <Compile Include="src/SmokeTest/**/*.cs" />
+            </ItemGroup>
+          </Project>
+          XML
+          dotnet build /tmp/SmokeTest/SmokeTest.SharedSource.csproj --nologo -v q

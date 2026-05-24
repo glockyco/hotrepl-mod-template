@@ -1,0 +1,8 @@
+bin/
+obj/
+*.user
+.vs/
+Local.props
+.idea/
+.DS_Store
+/tmp/

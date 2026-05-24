@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <RootNamespace>MyMod.BepInEx</RootNamespace>
+        <AssemblyName>MyMod.BepInEx</AssemblyName>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <DefineConstants>$(DefineConstants);BEPINEX</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BepInEx.Core" Version="5.4.21" PrivateAssets="all" />
+        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="HotRepl.Core">
+            <HintPath>$(HotReplVendorDir)HotRepl.Core.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="HotRepl.Protocol">
+            <HintPath>$(HotReplVendorDir)HotRepl.Protocol.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Fleck">
+            <HintPath>$(HotReplVendorDir)Fleck.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Newtonsoft.Json">
+            <HintPath>$(HotReplVendorDir)Newtonsoft.Json.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Namotion.Reflection">
+            <HintPath>$(HotReplVendorDir)Namotion.Reflection.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="UnityEngine" Condition="'$(UnityManagedPath)' != ''">
+            <HintPath>$(UnityManagedPath)/UnityEngine.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule" Condition="'$(UnityManagedPath)' != ''">
+            <HintPath>$(UnityManagedPath)/UnityEngine.CoreModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="../MyMod/**/*.cs" Exclude="../MyMod/bin/**;../MyMod/obj/**" />
+    </ItemGroup>
+</Project>

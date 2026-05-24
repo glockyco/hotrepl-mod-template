@@ -1,0 +1,16 @@
+<!--
+  Copy this file to Local.props and fill in your game paths.
+  Local.props is gitignored.
+-->
+<Project>
+  <PropertyGroup>
+    <!-- BepInEx deploy destination and Mono UnityEngine references. -->
+    <BepInExPluginPath>/path/to/Game/BepInEx/plugins</BepInExPluginPath>
+    <UnityManagedPath>/path/to/Game/Game_Data/Managed</UnityManagedPath>
+
+    <!-- MelonLoader deploy destination and IL2CPP-unhollowed references. -->
+    <MelonLoaderPath>/path/to/Game/MelonLoader</MelonLoaderPath>
+    <Il2CppAssembliesPath>/path/to/Game/MelonLoader/Il2CppAssemblies</Il2CppAssembliesPath>
+    <MelonLoaderModsPath>/path/to/Game/Mods</MelonLoaderModsPath>
+  </PropertyGroup>
+</Project>
