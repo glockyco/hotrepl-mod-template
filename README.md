@@ -1,115 +1,79 @@
 # hotrepl-mod-template
 
-Scaffold for writing a [HotRepl](https://github.com/glockyco/HotRepl) command plugin for a Unity
-game. The template supports BepInEx 5 on Mono and MelonLoader on IL2CPP by compiling the same shared
-command source into loader-specific entrypoint assemblies.
+This template starts a Unity game mod that exposes typed commands through [HotRepl](https://github.com/glockyco/HotRepl). Use it when you want a CLI or coding agent to call your game-specific C# code through BepInEx on Mono or MelonLoader on IL2CPP.
 
-## What you get
+The shared command source builds into either loader's plugin. The template includes a greeting command, loader entry points and deployment scripts. It does not install HotRepl itself.
 
-- One typed demo command, `mymod.hello`, implemented with `IControlCommandHandler<TArgs, TOutput>`.
-- BepInEx and MelonLoader loader projects that register the same command catalog.
-- Deploy scripts and local path configuration for copying the built plugin into a game install.
-- Vendored HotRepl 3.0 reference assemblies under `vendor/hotrepl/` so the template builds before a
-  public NuGet package exists.
+## Start a mod
 
-## Prerequisites
+You need a .NET SDK compatible with the [CI workflow](.github/workflows/ci.yml), Bash for the deployment scripts, and a game with its mod loader and matching HotRepl host installed. Use Node.js and npm for the CLI examples below.
 
-- .NET SDK 10.x.
-- A Unity game with either BepInEx 5.x or MelonLoader 0.6+ installed.
-- The matching HotRepl host plugin loaded in the game:
-  - `HotRepl.BepInEx.dll` for BepInEx.
-  - `HotRepl.Host.MelonLoader.dll` for MelonLoader.
-- The HotRepl CLI for testing (`bunx @hotrepl/cli` from the HotRepl repo).
+Choose "Use this template" on GitHub and create a repository, then clone it. You can keep the `MyMod` names until you have deployed the example command.
 
-## Quickstart
+If you use the GitHub template, replace `PLUGIN_GUID_PLACEHOLDER` in [PluginInfo.cs](src/MyMod.BepInEx/PluginInfo.cs) and `AUTHOR_PLACEHOLDER` in [MyModMelonMod.cs](src/MyMod.MelonLoader/MyModMelonMod.cs) before deployment.
 
-### Option 1: use the GitHub template
+Alternatively, install the template from a local clone and generate a project:
 
-1. Click **Use this template** → **Create a new repository**.
-2. Clone your new repository locally.
-3. Rename `MyMod` and `mymod.hello` to your mod and command names.
-
-### Option 2: use `dotnet new`
-
-```bash
-dotnet new install glockyco/hotrepl-mod-template
-dotnet new hotrepl-mod -n AwesomeMod -o ~/Projects/AwesomeMod \
+```sh
+git clone https://github.com/glockyco/hotrepl-mod-template.git
+cd hotrepl-mod-template
+dotnet new install .
+dotnet new hotrepl-mod -n AwesomeMod -o ../AwesomeMod \
   --PluginGuid awesomestudios.awesomemod --Author "Awesome Studios"
+cd ../AwesomeMod
 ```
 
-`dotnet new` rewrites `mymod.hello` to the lowercase project-name prefix (for example,
-`awesomemod.hello`). GitHub template users should rename `MyMod` and `mymod.hello` manually.
+The examples below use the original `MyMod` paths. In a generated project, use the generated names and check the command's `Name` in its handler before calling it.
 
-### Configure local paths and deploy
+## Configure and deploy
 
-```bash
+From your mod's repository root:
+
+```sh
 cp Local.props.example Local.props
-# Edit Local.props and set either BepInExPluginPath + UnityManagedPath,
-# or MelonLoaderPath + Il2CppAssembliesPath + MelonLoaderModsPath.
-bash scripts/deploy-bepinex.sh       # or bash scripts/deploy-melonloader.sh
 ```
 
-Launch the game, then from any HotRepl client:
+Edit the paths in `Local.props` using [Local.props.example](Local.props.example) as a guide. Set the BepInEx plugin and managed assembly paths for Mono, or the MelonLoader, IL2CPP assembly and Mods paths for IL2CPP. `Local.props` is ignored by Git.
 
-```bash
-bunx @hotrepl/cli describe mymod.hello
-bunx @hotrepl/cli run mymod.hello '{"name":"World"}'
+Close the game, then build and deploy for its loader:
+
+```sh
+# BepInEx on Mono
+bash scripts/deploy-bepinex.sh
+
+# Or MelonLoader on IL2CPP
+bash scripts/deploy-melonloader.sh
 ```
 
-Expected result:
+The BepInEx script copies the mod DLL into a `MyMod` subfolder of your configured plugin directory. The MelonLoader script copies the mod DLL into your configured Mods directory. Both scripts overwrite an existing copy. They do not deploy the HotRepl host or its dependencies.
 
-```json
-{
-  "greeting": "Hello, World!",
-  "generatedAt": "..."
-}
+Launch the game, then inspect and run the example command:
+
+```sh
+npx -y @hotrepl/cli describe mymod.hello
+npx -y @hotrepl/cli run mymod.hello '{"name":"World"}'
 ```
 
-## Project layout
+The command returns a greeting of `Hello, World!` and a generation timestamp. If it is missing, check the loader log and confirm that both the HotRepl host and your mod loaded.
 
-| Path | Purpose |
-| --- | --- |
-| `src/MyMod/` | Shared command handlers and POCO arg/result types. Compiled into both loader DLLs. |
-| `src/MyMod.BepInEx/` | BepInEx plugin entrypoint. References Mono UnityEngine assemblies from `UnityManagedPath`. |
-| `src/MyMod.MelonLoader/` | MelonLoader mod entrypoint. References IL2CPP-unhollowed assemblies from `Il2CppAssembliesPath`. |
-| `vendor/hotrepl/` | HotRepl 3.0 reference assemblies used at compile time. The game should get runtime copies from the HotRepl host install. |
-| `scripts/` | Build and deploy helpers. |
-| `Local.props.example` | Copy to `Local.props` for machine-specific game paths. |
+## Add your commands
 
-## Adding a command
+1. Rename `MyMod` throughout the project to your mod's name and set the plugin identity in the loader entry points. If you generated the project with `dotnet new`, inspect the generated identities before deployment.
+2. Use [HelloWorldCommand.cs](src/MyMod/Commands/HelloWorldCommand.cs) as the handler example and add argument and result types under [Models](src/MyMod/Models).
+3. Give the command a unique name and set its version, execution kind and state-mutation flag.
+4. Register the handler in [MyModCatalog.cs](src/MyMod/MyModCatalog.cs).
+5. Deploy again, restart the game and inspect the command with the CLI before calling it.
 
-1. Copy `src/MyMod/Commands/HelloWorldCommand.cs`.
-2. Add or copy POCO arg/result types under `src/MyMod/Models/`.
-3. Change the command `Name`, `Version`, `Kind`, and `MutatesState`.
-4. Register the command in `src/MyMod/MyModCatalog.cs`.
-5. Build and deploy; `bunx @hotrepl/cli describe <command>` will show the new descriptor and schema.
+Keep shared game logic in [src/MyMod](src/MyMod). Put loader-specific code in [src/MyMod.BepInEx](src/MyMod.BepInEx) or [src/MyMod.MelonLoader](src/MyMod.MelonLoader).
 
-## Schema authoring
+The [HotRepl command authoring guide](https://github.com/glockyco/HotRepl/blob/main/docs/authoring-commands.md) covers schemas and runtime behavior. Check it against the HotRepl assemblies you compile against because this template uses vendored references rather than fetching the current host SDK.
 
-HotRepl uses standard .NET metadata on POCO properties:
+## References and checks
 
-| Attribute | Effect |
-| --- | --- |
-| `[Description("...")]` | Human-readable field description in `command_describe`. |
-| `[Required]` | Required argument. Add `using System.ComponentModel.DataAnnotations;`. |
-| `[Range(min, max)]` | Numeric bounds; invalid calls fail before the handler runs. |
-| `[StringLength(max)]` | String length bounds. |
-| `[JsonProperty("wireName")]` | Newtonsoft.Json wire-name override. |
-| `[JsonIgnore]` | Hide a property from the schema and JSON payload. |
+The loader project files reference [vendor/hotrepl](vendor/hotrepl) at compile time without copying those assemblies into the deployed mod. Use a compatible HotRepl host in the game. When updating the references, replace the vendored set together and keep `Private=false` so the mod does not deploy a second Core assembly.
 
-## Mono vs IL2CPP
-
-Keep code in `src/MyMod/` when the same source compiles against both runtimes. If a command needs
-loader-specific APIs, move that command into `src/MyMod.BepInEx/` or `src/MyMod.MelonLoader/` and
-adapt `MyModCatalog.Build()` with `#if BEPINEX` / `#if MELONLOADER` registrations.
-
-## Updating HotRepl references
-
-The template currently vendors HotRepl 3.0 reference assemblies in `vendor/hotrepl/`. Replace those
-DLLs with the same files from a newer HotRepl release when upgrading. Keep `Private=false` on the
-references so your mod DLL does not carry a second copy of Core into the game; the HotRepl host owns
-runtime deployment.
+The [CI workflow](.github/workflows/ci.yml) checks template generation and compilation of the shared source. It does not build the loader projects against a game installation. Use the deployment script for your loader to build against your local game assemblies, then call your command in the running game.
 
 ## License
 
-MIT.
+[MIT](LICENSE).
