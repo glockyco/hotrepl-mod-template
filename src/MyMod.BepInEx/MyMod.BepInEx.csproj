@@ -29,10 +29,6 @@
             <HintPath>$(HotReplVendorDir)Newtonsoft.Json.dll</HintPath>
             <Private>false</Private>
         </Reference>
-        <Reference Include="Namotion.Reflection">
-            <HintPath>$(HotReplVendorDir)Namotion.Reflection.dll</HintPath>
-            <Private>false</Private>
-        </Reference>
     </ItemGroup>
 
     <ItemGroup>

@@ -60,17 +60,17 @@ The command returns a greeting of `Hello, World!` and a generation timestamp. If
 
 1. Rename `MyMod` throughout the project to your mod's name and set the plugin identity in the loader entry points. If you generated the project with `dotnet new`, inspect the generated identities before deployment.
 2. Use [HelloWorldCommand.cs](src/MyMod/Commands/HelloWorldCommand.cs) as the handler example and add argument and result types under [Models](src/MyMod/Models).
-3. Give the command a unique name and set its version, execution kind and state-mutation flag.
+3. Give the command a unique name and declare its metadata with `[ControlCommand]`. Keep its name, version, execution kind and state-mutation properties consistent with the attribute.
 4. Register the handler in [MyModCatalog.cs](src/MyMod/MyModCatalog.cs).
 5. Deploy again, restart the game and inspect the command with the CLI before calling it.
 
 Keep shared game logic in [src/MyMod](src/MyMod). Put loader-specific code in [src/MyMod.BepInEx](src/MyMod.BepInEx) or [src/MyMod.MelonLoader](src/MyMod.MelonLoader).
 
-The [HotRepl command authoring guide](https://github.com/glockyco/HotRepl/blob/main/docs/authoring-commands.md) covers schemas and runtime behavior. Check it against the HotRepl assemblies you compile against because this template uses vendored references rather than fetching the current host SDK.
+The [HotRepl command authoring guide](https://github.com/glockyco/HotRepl/blob/main/docs/authoring-commands.md) covers schemas and runtime behavior. Handlers use `ControlCommandContext<TOutput>` and return results through helpers such as `context.Ok(output)`.
 
 ## References and checks
 
-The loader project files reference [vendor/hotrepl](vendor/hotrepl) at compile time without copying those assemblies into the deployed mod. Use a compatible HotRepl host in the game. When updating the references, replace the vendored set together and keep `Private=false` so the mod does not deploy a second Core assembly.
+The loader project files reference [vendor/hotrepl](vendor/hotrepl) at compile time without copying those assemblies into the deployed mod. Use a compatible HotRepl host in the game. The [vendor README](vendor/hotrepl/README.md) records the source revision and build commands. When updating the references, replace the vendored set together and keep `Private=false` so the mod does not deploy a second Core assembly.
 
 The [CI workflow](.github/workflows/ci.yml) checks template generation and compilation of the shared source. It does not build the loader projects against a game installation. Use the deployment script for your loader to build against your local game assemblies, then call your command in the running game.
 
