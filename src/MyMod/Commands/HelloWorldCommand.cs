@@ -7,7 +7,7 @@ using MyMod.Models;
 namespace MyMod.Commands;
 
 /// <summary>
-/// Demo command — replace with your own.
+/// Demo command. Replace with your own.
 ///
 /// The canonical typed-command pattern:
 /// 1. Define POCO args and result types (see Models/).
@@ -18,6 +18,7 @@ namespace MyMod.Commands;
 /// $ hotrepl run mymod.hello '{}'
 /// $ hotrepl run mymod.hello '{"name":"World"}'
 /// </summary>
+[ControlCommand("mymod.hello", Version = 1, Kind = ControlCommandKind.Sync)]
 public sealed class HelloWorldCommand : IControlCommandHandler<HelloWorldArgs, HelloWorldResult>
 {
     /// <inheritdoc />
@@ -27,21 +28,21 @@ public sealed class HelloWorldCommand : IControlCommandHandler<HelloWorldArgs, H
     public int Version => 1;
 
     /// <inheritdoc />
-    public ControlCommandKind Kind => ControlCommandKind.Synchronous;
+    public ControlCommandKind Kind => ControlCommandKind.Sync;
 
     /// <inheritdoc />
     public bool MutatesState => false;
 
     /// <inheritdoc />
     public ValueTask<ControlCommandResult<HelloWorldResult>> ExecuteAsync(
-        ControlCommandContext context,
+        ControlCommandContext<HelloWorldResult> context,
         HelloWorldArgs args,
         CancellationToken cancellationToken
     )
     {
         var who = string.IsNullOrWhiteSpace(args.Name) ? "world" : args.Name;
         return new(
-            ControlCommandResult.Ok(
+            context.Ok(
                 new HelloWorldResult
                 {
                     Greeting = $"Hello, {who}!",

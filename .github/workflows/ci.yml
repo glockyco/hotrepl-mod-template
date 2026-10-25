@@ -46,9 +46,6 @@ jobs:
               <Reference Include="Newtonsoft.Json">
                 <HintPath>vendor/hotrepl/Newtonsoft.Json.dll</HintPath>
               </Reference>
-              <Reference Include="Namotion.Reflection">
-                <HintPath>vendor/hotrepl/Namotion.Reflection.dll</HintPath>
-              </Reference>
               <Compile Include="src/SmokeTest/**/*.cs" />
             </ItemGroup>
           </Project>
